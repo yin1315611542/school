@@ -10,6 +10,8 @@ import com.yanda.school.publish.mapper.PublishMapper;
 import com.yanda.school.publish.service.PublishService;
 import com.yanda.school.user.User;
 import com.yanda.school.auth.JwtUtil;
+import com.yanda.school.utils.EmosException;
+import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
 import com.yanda.school.validation.ValidateInfo;
 import com.yanda.school.validation.format.FormatValidator;
@@ -41,27 +43,26 @@ public class PublishController {
     JwtUtil jwtUtil;
     @Autowired
     ModuleProvider moduleProvider;
+    @Autowired
+    PublishMapper publishMapper;
 
 
     @PostMapping("/publish")
-    public BaseGduiDTO<?> publish(ServletRequest request, @RequestBody Publish publish){
-        try {
+    public R publish(ServletRequest request, @RequestBody Publish publish){
+
             //确定发布类型，获取校验器
             FormatValidator<Publish> validator = moduleProvider.getValidator(publish.getType());
             //先进行校验
             ValidateInfo validateInfo = validator.formatValidate(publish);
             if (validateInfo.isValidation()){
-                return BaseGduiDTO.error(validateInfo.getDescription());
+                throw new EmosException(validateInfo.getDescription());
             }
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
             publish.setPublisher(userId);
             publishService.createPublish(publish);
-            return BaseGduiDTO.ok();
-        }catch (Exception e){
-            log.info("发布异常{}",e);
-            return BaseGduiDTO.error("发布异常");
-        }
+            return R.ok();
+
     }
 
     @PostMapping("/delPublish")
@@ -75,34 +76,34 @@ public class PublishController {
     }
 
     @GetMapping("publish")
-    public BaseGduiDTO<?> PublishAll(){
+    public R PublishAll(){
         List<Publish> publishes = publishService.queryPublishAll();
-        PublishMapper publishMapper = new PublishMapper();
+
         List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-        return BaseGduiDTO.ok(collect);
+        return R.ok().put("data",collect);
     }
 
     @PostMapping("publishByType")
-    public BaseGduiDTO<?> PublishByType(@RequestBody Publish type){
+    public R PublishByType(@RequestBody Publish type){
         try {
             ModuleType moduleType = type.getType();
             List<Publish> publishes = publishService.queryPublishByType(moduleType);
-            PublishMapper publishMapper = new PublishMapper();
+
             List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-            return BaseGduiDTO.ok(collect);
+            return R.ok().put("data",collect);
         }catch (Exception e){
-            return BaseGduiDTO.error();
+            return R.error();
         }
     }
     @PostMapping("publishBySearch")
-    public BaseGduiDTO<?> publishBySearch(@RequestBody PublishRequest publishRequest){
+    public R publishBySearch(@RequestBody PublishRequest publishRequest){
         try {
             List<Publish> publishes = publishService.queryPublishByContent(publishRequest.getSearchText());
-            PublishMapper publishMapper = new PublishMapper();
+
             List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-            return BaseGduiDTO.ok(collect);
+            return R.ok().put("data",collect);
         }catch (Exception e){
-            return BaseGduiDTO.error("查询失败");
+            return R.error("查询失败");
         }
     }
 
@@ -114,7 +115,7 @@ public class PublishController {
             if (requestToken != null){
                 Long userId = jwtUtil.getUserId(requestToken);
                 Publish publish = publishService.queryPublishById(id);
-                PublishMapper publishMapper = new PublishMapper();
+
                 publishVo = publishMapper.entityToVo(publish);
                 if (publish.getPublisher().equals(userId)){
                     publishVo.setMark(true);
@@ -123,7 +124,7 @@ public class PublishController {
                 }
             }else {
                 Publish publish = publishService.queryPublishById(id);
-                PublishMapper publishMapper = new PublishMapper();
+
                 publishVo = publishMapper.entityToVo(publish);
                 publishVo.setMark(true);
             }
@@ -150,7 +151,7 @@ public class PublishController {
         try {
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
-            PublishMapper publishMapper = new PublishMapper();
+
             User user = new User();
             user.setId(userId);
             List<Publish> publishes = publishService.queryPublishByPublisher(user);

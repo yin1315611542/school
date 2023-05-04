@@ -17,7 +17,7 @@ import java.util.Map;
  * 我们要创建的ShiroConfig类，是用来把OAuth2Filter和OAuth2Realm配置到Shiro框架，这样我们辛苦搭建的Shiro+JWT才算生效
  * 只需要向spring boot返回四个对象就可以成功整合Shoir和JWT技术进行认证和授权
  */
-//@Configuration
+@Configuration
 public class ShiroConfig {
 
     /**
@@ -41,6 +41,7 @@ public class ShiroConfig {
      */
     @Bean("shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager,OAuth2Filter oAuth2Filter) {
+        //创建一个shiro过滤器
         ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
         shiroFilter.setSecurityManager(securityManager);
 
@@ -51,21 +52,20 @@ public class ShiroConfig {
 
         Map<String, String> filterMap = new LinkedHashMap<>();
         //anon不拦截
-        filterMap.put("/webjars/**", "anon");
-        filterMap.put("/druid/**", "anon");
-        filterMap.put("/app/**", "anon");
-        filterMap.put("/sys/login", "anon");
-        filterMap.put("/swagger/**", "anon");
-        filterMap.put("/v2/api-docs", "anon");
-        filterMap.put("/swagger-ui.html", "anon");
-        filterMap.put("/swagger-resources/**", "anon");
-        filterMap.put("/captcha.jpg", "anon");
+//        filterMap.put("/webjars/**", "anon");
+//        filterMap.put("/druid/**", "anon");
+//        filterMap.put("/app/**", "anon");
+//        filterMap.put("/sys/login", "anon");
+//        filterMap.put("/swagger/**", "anon");
+//        filterMap.put("/v2/api-docs", "anon");
+//        filterMap.put("/swagger-ui.html", "anon");
+//        filterMap.put("/swagger-resources/**", "anon");
+//        filterMap.put("/captcha.jpg", "anon");
         filterMap.put("/school/user/register", "anon");
-        filterMap.put("/user/login", "anon");
+        filterMap.put("/school/user/login", "anon");
         filterMap.put("/school/publishByType", "anon");
-        filterMap.put("/user/user", "anon");
+        filterMap.put("/school/user/user", "anon");
         filterMap.put("/school/image", "anon");
-        filterMap.put("/school/uploadImage","anon");
         filterMap.put("/school/uploadImage","anon");
         filterMap.put("/school/publishById","anon");
         filterMap.put("/test/**", "anon");

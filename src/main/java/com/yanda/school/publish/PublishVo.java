@@ -41,4 +41,6 @@ public class PublishVo {
     private Long receiver;
 
     private Boolean mark;
+
+    private String photo;
 }

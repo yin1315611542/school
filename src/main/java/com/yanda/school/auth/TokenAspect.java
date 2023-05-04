@@ -1,6 +1,7 @@
 package com.yanda.school.auth;
 
 import com.yanda.school.config.BaseGduiDTO;
+import com.yanda.school.utils.R;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,17 +25,13 @@ public class TokenAspect {
     }
 
     @Around("aspect()")
-    public Object around(ProceedingJoinPoint point) throws Throwable {
-        BaseGduiDTO r = (BaseGduiDTO) point.proceed(); //方法执行结果
-        String token = threadLocalToken.getToken();
-        //如果ThreadLocal中存在Token，说明是更新的Token
-        if (token != null) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("token", token);
-            r.setData(map); //往响应中放置Token
+    public Object around(ProceedingJoinPoint point) throws Throwable{
+        R r=(R)point.proceed();
+        String token=threadLocalToken.getToken();
+        if(token!=null){
+            r.put("token",token);
             threadLocalToken.clear();
         }
-
         return r;
     }
 }

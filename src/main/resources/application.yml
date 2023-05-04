@@ -23,6 +23,12 @@ spring:
         max-wait: -1ms
         max-idle: 16
         min-idle: 8
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.yanda.user
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
 emos:
   jwt:
     #密钥
@@ -32,6 +38,6 @@ emos:
     #令牌缓存时间（天数）
     cache-expire: 10
 wx:
-  app-id: ""
-  app-secret: ""
+  app-id: "wx67f1b14b12cce313"
+  app-secret: "06b7cdd2c6a9daadc9c4958e9589413c"
 

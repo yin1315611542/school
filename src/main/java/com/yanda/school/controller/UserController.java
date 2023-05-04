@@ -1,140 +1,134 @@
 package com.yanda.school.controller;
 
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
-import com.yanda.school.config.BaseGduiDTO;
+import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.user.LoginForm;
-import com.yanda.school.user.User;
-import com.yanda.school.user.UserVo;
-import com.yanda.school.user.mapper.UserMapper;
+import com.yanda.school.user.pojo.DeleteUserByIdForm;
+import com.yanda.school.user.pojo.RegisterForm;
+import com.yanda.school.user.pojo.SearchUserInfoForm;
+import com.yanda.school.user.pojo.UpdateUserInfoForm;
 import com.yanda.school.user.service.UserService;
 import com.yanda.school.utils.EmosException;
-import com.yanda.school.auth.JwtUtil;
-import com.yanda.school.utils.TokenUtil;
-import lombok.extern.slf4j.Slf4j;
+import com.yanda.school.utils.R;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Random;
+import javax.validation.Valid;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@Slf4j
-@RequestMapping("school")
+@RequestMapping("school/user")
+@Api("用户模块Web接口")
 public class UserController {
+    @Autowired
+    private UserService userService;
 
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
+
     @Autowired
-    RedisTemplate redisTemplate;
-    @Autowired
-    UserService userService;
+    private RedisTemplate redisTemplate;
+
     @Value("${emos.jwt.cache-expire}")
     private int cacheExpire;
 
-    @PostMapping("/user/login")
-    public BaseGduiDTO<?> login(@RequestBody LoginForm userInfo) {
-        String code = userInfo.getCode();
-        String openId = getOpenId(code);
-        User user = userInfo.getUserInfo();
-        user.setNickName(getRandomString(7));
-        user.setOpenid(openId);
-        User user1 = userService.queryUser(openId);
-        if (ObjectUtils.isEmpty(user1)) {
-            user1 = userService.createUser(user);
-        }
-        String token = jwtUtil.createToken(user1.getId().intValue());
-        redisTemplate.opsForValue().set(token, user1.getId() + "", cacheExpire, TimeUnit.DAYS);
-        HashMap<String, Object> maps = new HashMap<>();
-        maps.put("token", token);
-        UserMapper userMapper = new UserMapper();
-        UserVo userVo = userMapper.entityToVo(user1);
-        maps.put("user", userVo);
-        return BaseGduiDTO.ok(maps);
-    }
-    @PostMapping("/user/register")
-    public BaseGduiDTO<?> register(@RequestBody LoginForm userInfo){
 
-        String openId = getOpenId(userInfo.getCode());
-        User user = userInfo.getUserInfo();
-        user.setOpenid(openId);
-        User user1 = userService.queryUser(openId);
-        if (ObjectUtils.isEmpty(user1)) {
-            userService.createUser(user);
-            return BaseGduiDTO.ok("注册成功");
-        }else {
-            return BaseGduiDTO.error("用户已存在");
-        }
-
+    @PostMapping("/register")
+    @ApiOperation("注册用户")
+    public R  register(@Valid @RequestBody RegisterForm form) {
+        int id = userService.registerUser(form.getRegisterCode(), form.getCode(), form.getNickname(), form.getPhoto());
+        String token = jwtUtil.createToken(id);
+        //根据用户返回用户的权限列表
+        Set<String> permsSet = userService.searchUserPermissions(id);
+        saveCacheToken(token, id);
+        return R.ok("用户注册成功").put("token", token).put("permission", permsSet);
     }
 
 
 
-
-    //length用户要求产生字符串的长度
-    public static String getRandomString(int length){
-        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        Random random=new Random();
-        StringBuffer sb=new StringBuffer();
-        for(int i=0;i<length;i++){
-            int number=random.nextInt(62);
-            sb.append(str.charAt(number));
-        }
-        return sb.toString();
+    @PostMapping("/login")
+    @ApiOperation("登录系统")
+    public R login(@Valid @RequestBody LoginForm form){
+        //生成token
+        Integer id = userService.login(form.getCode());
+        String token = jwtUtil.createToken(id);
+        //查询该用户的操作权限
+        Set<String> permission = userService.searchUserPermissions(id);
+        //保存到Redis中
+        saveCacheToken(token,id);
+        //返回给前端
+        return R.ok("登录成功").put("token",token).put("permission",permission);
     }
 
-    @PostMapping("user")
-    public BaseGduiDTO<?> getUser(ServletRequest request){
-        try {
-            String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
-            Long userId = jwtUtil.getUserId(requestToken);
-            User user = userService.queryUserId(userId);
-            UserMapper userMapper = new UserMapper();
-            UserVo userVo = userMapper.entityToVo(user);
-            return BaseGduiDTO.ok(userVo);
-        }catch (Exception e){
-            return BaseGduiDTO.error();
-        }
+
+    @GetMapping("/searchUserSummary")
+    @ApiOperation("查询用户摘要信息")
+    public R searchUserSummary(@RequestHeader("token") String token) {
+        int userId = jwtUtil.getUserId(token).intValue();
+        HashMap map = userService.searchUserSummary(userId);
+        return R.ok().put("result", map);
     }
 
-    @PostMapping("updateUser")
-    public BaseGduiDTO<?> updateUser(@RequestBody User user) {
-        try {
-            if (ObjectUtils.isEmpty(user.getId())) {
-                throw new EmosException("用户ID为空");
-            }
-            User user1 = userService.modifyUser(user);
-            UserMapper userMapper = new UserMapper();
-            UserVo userVo = userMapper.entityToVo(user1);
-            return BaseGduiDTO.ok(userVo);
-            } catch (Exception e) {
-            return BaseGduiDTO.error();
-        }
 
+    @PostMapping("/searchUserInfo")
+    @ApiOperation("查询员工数据")
+    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:SELECT"}, logical = Logical.OR)
+    public R searchUserInfo(@Valid @RequestBody SearchUserInfoForm form) {
+        HashMap map = userService.searchUserInfo(form.getUserId());
+        return R.ok().put("result", map);
     }
 
-    public void saveCacheToken(String token, int userId) {
-        redisTemplate.opsForValue().set(token, userId + "", 100, TimeUnit.DAYS);
+    @GetMapping("/searchUserSelfInfo")
+    @ApiOperation("查询用户信息")
+    public R searchUserSelfInfo(@RequestHeader("token") String token) {
+        int userId = jwtUtil.getUserId(token).intValue();
+        HashMap map = userService.searchUserInfo(userId);
+        return R.ok().put("result", map);
     }
 
-    public String getOpenId(String code) {
-        String url = "https://api.weixin.qq.com/sns/jscode2session";
-        HashMap map = new HashMap();
-        map.put("appid", "wx67f1b14b12cce313");
-        map.put("secret", "06b7cdd2c6a9daadc9c4958e9589413c");
-        map.put("js_code", code);
-        map.put("grant_type", "authorization_code");
-        String response = HttpUtil.post(url, map);
-        JSONObject json = JSONUtil.parseObj(response);
-        String openId = json.getStr("openid");
-        return openId;
+
+    @PostMapping("/updateUserInfo")
+    @ApiOperation("更新用户数据")
+    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:UPDATE"}, logical = Logical.OR)
+    public R updateUserInfo(@Valid @RequestBody UpdateUserInfoForm form) {
+        boolean root = false;
+
+        HashMap param = new HashMap();
+        param.put("name", form.getName());
+        param.put("sex", form.getSex());
+        param.put("tel", form.getTel());
+        param.put("email", form.getEmail());
+        param.put("hiredate", form.getHiredate());
+        param.put("status", form.getStatus());
+        param.put("userId", form.getUserId());
+        param.put("root", root);
+
+        int rows = userService.updateUserInfo(param);
+        return R.ok().put("result", rows);
     }
 
+    @PostMapping("/deleteUserById")
+    @ApiOperation("删除员工记录")
+    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:DELETE"}, logical = Logical.OR)
+    public R deleteUserById(@Valid @RequestBody DeleteUserByIdForm form) {
+        userService.deleteUserById(form.getId());
+//        HashMap param=new HashMap();
+//        param.put("status",2);
+//        param.put("userId",form.getId());
+//        userService.updateUserStatus(param);
+        return R.ok().put("result", "success");
+    }
+    //redis中用户信息存储
+    private void saveCacheToken(String token, int userId) {
+        redisTemplate.opsForValue().set(token, userId + "", cacheExpire, TimeUnit.DAYS);
+    }
 }
