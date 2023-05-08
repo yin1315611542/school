@@ -1,5 +1,4 @@
 package com.yanda.school.moudel;
-
 import javax.persistence.AttributeConverter;
 
 public class ModuleTypeConverter implements AttributeConverter<ModuleType, Integer> {

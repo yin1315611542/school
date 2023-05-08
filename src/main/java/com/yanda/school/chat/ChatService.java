@@ -1,11 +1,9 @@
 package com.yanda.school.chat;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.yanda.school.user.User;
 import com.yanda.school.user.pojo.TbUser;
 import com.yanda.school.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.query.JpaQueryCreator;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
