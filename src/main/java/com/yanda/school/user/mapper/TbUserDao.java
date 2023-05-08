@@ -22,6 +22,8 @@ public interface TbUserDao {
 
     public TbUser searchById(int userId);
 
+    public List<TbUser> searchByIds(List<Integer> ids);
+
     public HashMap searchNameAndDept(int userId);
 
     public String searchUserHiredate(int userId);

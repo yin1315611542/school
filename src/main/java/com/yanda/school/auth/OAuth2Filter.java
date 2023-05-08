@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 因为在OAuth2Filter类中要读写ThreadLocal中的数据，所以OAuth2Filter类必须要设置成多例的，否则ThreadLocal将无法使用。
  */
-@Component
+//@Component
 @Scope("prototype")
 public class OAuth2Filter extends AuthenticatingFilter {
     @Autowired

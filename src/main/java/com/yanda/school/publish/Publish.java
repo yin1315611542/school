@@ -35,6 +35,8 @@ public class Publish {
 
     private String destination;
 
+    private String describes;
+
     private String img;
 
     private String mobilePhoneNo;

@@ -42,15 +42,15 @@ public class PublishServiceImpl implements PublishService {
 
     @Override
     public List<Publish> queryPublishAll() {
-        return publishRepository.findAll().stream().filter(e->e.getPublisher()!=null).collect(Collectors.toList());
+        return publishRepository.findAll().stream().filter(e->e.getReceiver()==null).collect(Collectors.toList());
     }
 
     @Override
     public List<Publish> queryPublishByType(ModuleType type) {
         if (!ObjectUtils.isEmpty(type)){
-            return jpaQueryFactory.selectFrom(QPublish.publish).where(QPublish.publish.type.eq(type)).fetch();
+            return jpaQueryFactory.selectFrom(QPublish.publish).where(QPublish.publish.type.eq(type).and(QPublish.publish.receiver.isNull())).fetch();
         }else {
-            return jpaQueryFactory.selectFrom(QPublish.publish).fetch();
+            return jpaQueryFactory.selectFrom(QPublish.publish).where(QPublish.publish.receiver.isNull()).fetch();
 
         }
     }

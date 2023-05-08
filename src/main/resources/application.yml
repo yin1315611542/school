@@ -33,11 +33,12 @@ emos:
   jwt:
     #密钥
     secret: abc123456
-    #令牌过期时间（天）
+    #令牌过期时间（秒）
     expire:  5
-    #令牌缓存时间（天数）
+    #令牌缓存时间（秒数）
     cache-expire: 10
 wx:
   app-id: "wx67f1b14b12cce313"
   app-secret: "06b7cdd2c6a9daadc9c4958e9589413c"
-
+xxs:
+   enabled: false

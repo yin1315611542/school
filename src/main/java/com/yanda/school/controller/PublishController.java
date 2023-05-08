@@ -50,13 +50,13 @@ public class PublishController {
     @PostMapping("/publish")
     public R publish(ServletRequest request, @RequestBody Publish publish){
 
-            //确定发布类型，获取校验器
-            FormatValidator<Publish> validator = moduleProvider.getValidator(publish.getType());
-            //先进行校验
-            ValidateInfo validateInfo = validator.formatValidate(publish);
-            if (validateInfo.isValidation()){
-                throw new EmosException(validateInfo.getDescription());
-            }
+//            //确定发布类型，获取校验器
+//            FormatValidator<Publish> validator = moduleProvider.getValidator(publish.getType());
+//            //先进行校验
+//            ValidateInfo validateInfo = validator.formatValidate(publish);
+//            if (validateInfo.isValidation()){
+//                throw new EmosException(validateInfo.getDescription());
+//            }
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
             publish.setPublisher(userId);

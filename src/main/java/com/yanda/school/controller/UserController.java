@@ -98,7 +98,7 @@ public class UserController {
 
     @PostMapping("/updateUserInfo")
     @ApiOperation("更新用户数据")
-    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:UPDATE"}, logical = Logical.OR)
+//    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:UPDATE"}, logical = Logical.OR)
     public R updateUserInfo(@Valid @RequestBody UpdateUserInfoForm form) {
         boolean root = false;
 
@@ -107,7 +107,7 @@ public class UserController {
         param.put("sex", form.getSex());
         param.put("tel", form.getTel());
         param.put("email", form.getEmail());
-        param.put("hiredate", form.getHiredate());
+//        param.put("hiredate", form.getHiredate());
         param.put("status", form.getStatus());
         param.put("userId", form.getUserId());
         param.put("root", root);

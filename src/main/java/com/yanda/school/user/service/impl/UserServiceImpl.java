@@ -76,10 +76,10 @@ public class UserServiceImpl implements UserService {
             param.put("openId", openId);
             param.put("nickname", nickname);
             param.put("photo", photo);
-            param.put("role", "[0]");
+            param.put("role", "[4]");
             param.put("status", 1);
             param.put("createTime", new Date());
-            param.put("root", true);
+            param.put("root", false);
             int row = userDao.insert(param);
             if (row != 1) {
                 throw new EmosException("");
@@ -108,6 +108,10 @@ public class UserServiceImpl implements UserService {
     public TbUser searchById(int userId) {
         TbUser user = userDao.searchById(userId);
         return user;
+    }
+   @Override
+    public List<TbUser> searchByIds(List ids){
+        return userDao.searchByIds(ids);
     }
 
     @Override
@@ -162,13 +166,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateUserInfo(HashMap param) {
-        //更新员工记录
+        //更新用户记录
         int rows = userDao.updateUserInfo(param);
-        //更新成功就发送消息通知
-        if (rows == 1) {
-            Integer userId = (Integer) param.get("userId");
-            String msg = "你的个人资料已经被成功修改";
-        }
+        //更新成功就发送消息通知 暂时不用
+//        if (rows == 1) {
+//            Integer userId = (Integer) param.get("userId");
+//            String msg = "你的个人资料已经被成功修改";
+//        }
         return rows;
     }
 

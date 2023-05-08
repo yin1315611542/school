@@ -25,7 +25,7 @@ public class JwtUtil {
     @Value("${emos.jwt.secret}")
     private String secret;
 
-    //过期时间（天）
+    //过期时间（秒）
     @Value("${emos.jwt.expire}")
     private int expire;
 
@@ -35,6 +35,7 @@ public class JwtUtil {
      * @return
      */
     public String createToken(int userId) {
+        //设置token生存周期
         Date date = DateUtil.offset(new Date(), DateField.DAY_OF_YEAR, expire).toJdkDate();
         Algorithm algorithm = Algorithm.HMAC256(secret); //创建加密算法对象
         JWTCreator.Builder builder = JWT.create();

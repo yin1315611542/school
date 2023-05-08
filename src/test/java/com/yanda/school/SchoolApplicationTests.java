@@ -1,19 +1,24 @@
 package com.yanda.school;
 
+import com.yanda.school.chat.ChatService;
 import com.yanda.school.moudel.ModuleType;
 import com.yanda.school.publish.Publish;
 import com.yanda.school.publish.service.PublishService;
+import com.yanda.school.user.pojo.TbUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @SpringBootTest
 class SchoolApplicationTests {
 
     @Autowired
     PublishService publishService;
+    @Autowired
+    ChatService chatService;
     @Test
     void contextLoads() {
 
@@ -34,6 +39,11 @@ class SchoolApplicationTests {
 
         }
 
+    }
+
+    @Test
+    void getUser(){
+        List<TbUser> userForChat = chatService.getUserForChat(9);
     }
 
 }

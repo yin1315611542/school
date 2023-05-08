@@ -17,7 +17,7 @@ import java.util.Map;
  * 我们要创建的ShiroConfig类，是用来把OAuth2Filter和OAuth2Realm配置到Shiro框架，这样我们辛苦搭建的Shiro+JWT才算生效
  * 只需要向spring boot返回四个对象就可以成功整合Shoir和JWT技术进行认证和授权
  */
-@Configuration
+//@Configuration
 public class ShiroConfig {
 
     /**

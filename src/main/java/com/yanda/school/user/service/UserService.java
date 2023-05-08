@@ -13,6 +13,8 @@ public interface UserService {
 
     public Set<String> searchUserPermissions(int userId);
 
+    public List<TbUser> searchByIds(List ids);
+
     public Integer login(String code);
 
     public TbUser searchById(int userId);
