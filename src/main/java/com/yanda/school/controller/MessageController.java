@@ -17,8 +17,7 @@ public class MessageController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private MessageService messageService;
+
 
    @Autowired
     MessageTask messageTask;

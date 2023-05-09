@@ -5,6 +5,7 @@ import com.yanda.school.chat.Chat;
 import com.yanda.school.chat.ChatService;
 import com.yanda.school.user.pojo.TbUser;
 import com.yanda.school.utils.R;
+import com.yanda.school.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
