@@ -9,7 +9,7 @@ public class RabbitMQConfig {
     @Bean
     public ConnectionFactory getFactory() {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("192.168.99.101"); //Linux主机的IP地址
+        factory.setHost("81.70.169.191"); //Linux主机的IP地址
 		factory.setPort(5672); //RabbitMQ端口号
         return factory;
     }
