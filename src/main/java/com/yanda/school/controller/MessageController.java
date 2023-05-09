@@ -64,6 +64,7 @@ public class MessageController {
         String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
         Long userId = jwtUtil.getUserId(requestToken);
         messageService.searchMessageById(userId.intValue());
+        return R.ok();
     }
 
 
