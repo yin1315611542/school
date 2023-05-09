@@ -1,5 +1,8 @@
 package com.yanda.school.message;
 
+import java.util.HashMap;
+import java.util.List;
+
 public interface MessageService {
 
     public String insertMessage(MessageEntity entity);

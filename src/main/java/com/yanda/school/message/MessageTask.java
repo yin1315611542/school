@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -29,14 +28,12 @@ public class MessageTask {
      * @param entity 消息对象
      */
     public void send(String topic, MessageEntity entity) {
-//        String id = messageService.insertMessage(entity); //向MongoDB保存消息数据，返回消息ID
         //向RabbitMQ发送消息
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             //连接到某个Topic
             channel.queueDeclare(topic, true, false, false, null);
             HashMap header = new HashMap(); //存放属性数据
-//            header.put("messageId", id);
             //创建AMQP协议参数对象，添加附加属性
             AMQP.BasicProperties properties = new AMQP.BasicProperties().builder().headers(header).build();
             channel.basicPublish("", topic, properties, entity.getMsg().getBytes());
@@ -75,18 +72,14 @@ public class MessageTask {
                 GetResponse response = channel.basicGet(topic, false);
                 if (response != null) {
                     AMQP.BasicProperties properties = response.getProps();
-                    Map<String, Object> header = properties.getHeaders(); //获取附加属性对象
-                    String messageId = header.get("messageId").toString();
                     byte[] body = response.getBody();//获取消息正文
                     String message = new String(body);
-                    log.debug("从RabbitMQ接收的消息：" + message);
+                    log.info("从RabbitMQ接收的消息：" + message);
                     MessageRefEntity entity = new MessageRefEntity();
-                    entity.setMessageId(messageId);
                     entity.setReceiverId(Integer.parseInt(topic));
                     entity.setReadFlag(false);
                     entity.setLastFlag(true);
-//                    messageService.insertRef(entity); //把消息存储在MongoDB中
-                    //数据保存到MongoDB后，才发送Ack应答，让Topic删除这条消息
+                    log.info("MessageRefEntity{}",entity.toString());
                     long deliveryTag = response.getEnvelope().getDeliveryTag();
                     channel.basicAck(deliveryTag, false);
                     i++;
