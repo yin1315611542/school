@@ -7,7 +7,6 @@ public interface MessageService {
 
     public String insertMessage(MessageEntity entity);
 
-    public String insertRef(MessageRefEntity entity);
 
     public long searchUnreadCount(int userId);
 
@@ -15,11 +14,11 @@ public interface MessageService {
 
     public List<HashMap> searchMessageByPage(int userId, long start, int length) ;
 
-    public HashMap searchMessageById(String id);
+    public List<MessageEntity> searchMessageById(Integer id);
 
-    public long updateUnreadMessage(String id) ;
+    public long updateUnreadMessage(Integer id) ;
 
-    public long deleteMessageRefById(String id);
+    public long deleteMessageRefById(Integer id);
 
 	public long deleteUserMessageRef(int userId);
 }
