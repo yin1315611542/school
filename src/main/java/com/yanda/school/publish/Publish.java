@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table(name = "publish")
 @Entity
@@ -38,6 +39,9 @@ public class Publish {
     private String describes;
 
     private String img;
+
+    @Transient
+    private List<String> imgs;
 
     private String mobilePhoneNo;
 

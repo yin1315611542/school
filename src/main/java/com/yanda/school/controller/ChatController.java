@@ -26,30 +26,34 @@ public class ChatController {
     @Autowired
     JwtUtil jwtUtil;
     @PostMapping("save")
-    public R saveChat(@RequestBody Chat chat){
+    public R saveChat(@RequestBody Chat chat, HttpServletRequest request){
+        String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
+        Long userId = jwtUtil.getUserId(requestToken);
+        chat.setUserId(userId.intValue());
         chatService.save(chat);
         return R.ok();
     }
 
     @GetMapping("chatUser")
     public R getUserForChat(HttpServletRequest request){
-//        String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
-//        Long userId = jwtUtil.getUserId(requestToken);
-//        List<TbUser> userForChat = chatService.getUserForChat(userId.intValue());
-        List<TbUser> userForChat = chatService.getUserForChat(9);
+        String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
+        Long userId = jwtUtil.getUserId(requestToken);
+        List<TbUser> userForChat = chatService.getUserForChat(userId.intValue());
+        userForChat.forEach(e->e.setTel("会话"));
         return R.ok().put("data",userForChat);
     }
 
-    @GetMapping("chat")
-    public R getChat( ServletRequest request){
-//        String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
-//        Long userId = jwtUtil.getUserId(requestToken);
-//        List<TbUser> userForChat = chatService.getUserForChat(userId.intValue());
-        List<Chat> chatByUserIdAndRecordId = chatService.getChatByUserIdAndRecordId(9, 10);
+    @PostMapping("chat")
+    public R getChat( @RequestBody Chat chat, ServletRequest request){
+        String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
+        Long userId = jwtUtil.getUserId(requestToken);
+        List<Chat> chatByUserIdAndRecordId = chatService.getChatByUserIdAndRecordId(userId.intValue(), chat.getRecordId());
         List<Chat> collect = chatByUserIdAndRecordId.stream().map(e -> {
-            if (e.getUserId().equals(10)) {
+            if (e.getUserId().equals(userId.intValue())) {
                 e.setUserContent(e.getBotContent());
-                e.setBotContent(null);
+                e.setBotContent("");
+            }else{
+                e.setUserContent("");
             }
             return e;
         }).collect(Collectors.toList());

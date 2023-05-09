@@ -1,5 +1,8 @@
 package com.yanda.school.controller;
 
+import cn.hutool.json.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.yanda.school.config.BaseGduiDTO;
 import com.yanda.school.moudel.ModuleProvider;
 import com.yanda.school.moudel.ModuleType;
@@ -28,7 +31,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -59,6 +66,13 @@ public class PublishController {
 //            }
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
+             ArrayList<Map<String,String>> objects = new ArrayList<>();
+           for (String img1:publish.getImgs()) {
+                HashMap<String, String> map = new HashMap<>();
+                map.put("src",img1);
+                objects.add(map);
+            }
+            publish.setImg(JSONObject.toJSONString(objects));
             publish.setPublisher(userId);
             publishService.createPublish(publish);
             return R.ok();
@@ -107,15 +121,14 @@ public class PublishController {
         }
     }
 
-    @GetMapping("publishById")
-    public BaseGduiDTO<?> PublishByType(ServletRequest request,Long id){
+    @PostMapping("publishById")
+    public R  PublishByType(@RequestBody Publish publishs, ServletRequest request){
         try {
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             PublishVo publishVo = new PublishVo();
             if (requestToken != null){
                 Long userId = jwtUtil.getUserId(requestToken);
-                Publish publish = publishService.queryPublishById(id);
-
+                Publish publish = publishService.queryPublishById(publishs.getId());
                 publishVo = publishMapper.entityToVo(publish);
                 if (publish.getPublisher().equals(userId)){
                     publishVo.setMark(true);
@@ -123,14 +136,31 @@ public class PublishController {
                     publish.setMark(false);
                 }
             }else {
-                Publish publish = publishService.queryPublishById(id);
-
+                Publish publish = publishService.queryPublishById(publishs.getId());
                 publishVo = publishMapper.entityToVo(publish);
                 publishVo.setMark(true);
             }
-            return BaseGduiDTO.ok(publishVo);
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("imags", JSONObject.parseObject(publishVo.getImg(),List.class));
+            ArrayList<Map<String,Object>> list = new ArrayList<>();
+            Field[] fields = publishVo.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true); // 设置属性可访问
+                try {
+                    HashMap<String, Object> singMap = new HashMap<>();
+                    singMap.put("label",field.getName() );
+                    singMap.put("value", field.get(publishVo)); // 将属性名和属性值放到Map中
+                    list.add(singMap);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            map.put("list",list);
+            return R.ok().put("data",map);
         }catch (Exception e){
-            return BaseGduiDTO.error();
+            return R.error();
         }
     }
 
