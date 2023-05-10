@@ -1,8 +1,7 @@
 package com.yanda.school.controller;
 
-import cn.hutool.json.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.config.BaseGduiDTO;
 import com.yanda.school.moudel.ModuleProvider;
 import com.yanda.school.moudel.ModuleType;
@@ -12,27 +11,33 @@ import com.yanda.school.publish.PublishVo;
 import com.yanda.school.publish.mapper.PublishMapper;
 import com.yanda.school.publish.service.PublishService;
 import com.yanda.school.user.User;
-import com.yanda.school.auth.JwtUtil;
-import com.yanda.school.utils.EmosException;
 import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
-import com.yanda.school.validation.ValidateInfo;
-import com.yanda.school.validation.format.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +61,6 @@ public class PublishController {
 
     @PostMapping("/publish")
     public R publish(ServletRequest request, @RequestBody Publish publish){
-
 //            //确定发布类型，获取校验器
 //            FormatValidator<Publish> validator = moduleProvider.getValidator(publish.getType());
 //            //先进行校验
@@ -128,6 +132,7 @@ public class PublishController {
             PublishVo publishVo = new PublishVo();
             if (requestToken != null){
                 Long userId = jwtUtil.getUserId(requestToken);
+
                 Publish publish = publishService.queryPublishById(publishs.getId());
                 publishVo = publishMapper.entityToVo(publish);
                 if (publish.getPublisher().equals(userId)){
@@ -145,12 +150,34 @@ public class PublishController {
             map.put("imags", JSONObject.parseObject(publishVo.getImg(),List.class));
             ArrayList<Map<String,Object>> list = new ArrayList<>();
             Field[] fields = publishVo.getClass().getDeclaredFields();
+            List<String> showList = Arrays.stream("title,content,startingTime,endOfTime,destination".split(","))
+                    .collect(Collectors.toList());
             for (Field field : fields) {
                 field.setAccessible(true); // 设置属性可访问
                 try {
                     HashMap<String, Object> singMap = new HashMap<>();
-                    singMap.put("label",field.getName() );
-                    singMap.put("value", field.get(publishVo)); // 将属性名和属性值放到Map中
+                    if (showList.contains(field.getName())){
+                        String name = null;
+                        switch (field.getName()){
+                            case "title":
+                                    name = "标题";
+                                    break;
+                            case "content":
+                                    name = "备注";
+                                    break;
+                            case "startingTime":
+                                    name = "开始时间";
+                                    break;
+                            case "endOfTime":
+                                    name  = "结单时间";
+                                    break;
+                            case "destination":
+                                    name  = "目的地";
+                                    break;
+                         }
+                        singMap.put("label",name );
+                        singMap.put("value", field.get(publishVo)); // 将属性名和属性值放到Map中
+                    }
                     list.add(singMap);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
@@ -163,6 +190,12 @@ public class PublishController {
             return R.error();
         }
     }
+
+//    @PostMapping("getOrderToMap")
+//    public R getPublishToMap(@RequestBody Publish publish){
+//        Publish publish1 = publishService.queryPublishById(publish.getId());
+//        publish1
+//    }
 
     @PostMapping("/uploadImage")
     @ResponseBody
@@ -247,7 +280,6 @@ public class PublishController {
     private String getRequestToken(HttpServletRequest httpRequest) {
         //从header中获取token
         String token = httpRequest.getHeader("token");
-
         //如果header中不存在token，则从参数中获取token
         if (StringUtils.isBlank(token)) {
             token = httpRequest.getParameter("token");

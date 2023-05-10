@@ -1,17 +1,10 @@
 package com.yanda.school.publish;
 
-import com.yanda.school.moudel.ModuleType;
-import com.yanda.school.moudel.ModuleTypeConverter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Convert;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

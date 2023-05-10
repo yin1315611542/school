@@ -83,7 +83,6 @@ public class PublishServiceImpl implements PublishService {
         publish.setReceiver(0L);
         publish.setId(orderId);
         publishRepository.save(publish);
-//      jpaQueryFactory.update(QPublish.publish).set(QPublish.publish.receiver, 0L).where(QPublish.publish.id.eq(orderId)).execute();
         return true;
     }
 
