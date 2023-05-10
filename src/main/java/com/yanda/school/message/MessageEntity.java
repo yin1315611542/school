@@ -36,5 +36,5 @@ public class MessageEntity implements Serializable {
 
     private String msg;
 
-    private Integer read;
+    private Integer readMark;
 }

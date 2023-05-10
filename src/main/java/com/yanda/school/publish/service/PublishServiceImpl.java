@@ -69,7 +69,7 @@ public class PublishServiceImpl implements PublishService {
     }
     @Override
     public List<Publish> queryPublishByContent(String content){
-        return jpaQueryFactory.selectFrom(QPublish.publish).where(QPublish.publish.content.like(content)).fetch();
+        return jpaQueryFactory.selectFrom(QPublish.publish).where(QPublish.publish.content.like(content).or(QPublish.publish.describes.like(content).or(QPublish.publish.title.like(content)))).fetch();
     }
 
     @Override

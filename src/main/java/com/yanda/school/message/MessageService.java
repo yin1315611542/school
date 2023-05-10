@@ -14,7 +14,9 @@ public interface MessageService {
 
     public List<HashMap> searchMessageByPage(int userId, long start, int length) ;
 
-    public List<MessageEntity> searchMessageById(Integer id);
+    public MessageEntity searchMessageById(Integer id);
+
+    public  List<MessageEntity> searchMessageByUserId(Integer userId);
 
     public long updateUnreadMessage(Integer id) ;
 

@@ -27,6 +27,8 @@ public class OrderController {
     JwtUtil jwtUtil;
     @Autowired
     PublishService publishService;
+    @Autowired
+    PublishMapper publishMapper;
 
     @PostMapping("receive")
     public R receiveOrder(@RequestBody OrderForm orderForm,HttpServletRequest request){
@@ -43,8 +45,7 @@ public class OrderController {
     }
 
     @GetMapping("/myReceiver")
-    public BaseGduiDTO<?> myReceiver(ServletRequest request){
-        PublishMapper publishMapper = new PublishMapper();
+    public R myReceiver(ServletRequest request){
         try {
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
@@ -52,10 +53,9 @@ public class OrderController {
             user.setId(userId);
             List<Publish> publishes = publishService.queryPublishByReceiver(user);
             List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-
-            return BaseGduiDTO.ok(collect);
+            return R.ok().put("data",collect);
         }catch (Exception e){
-            return BaseGduiDTO.error();
+            return R.error();
         }
     }
 

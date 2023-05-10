@@ -40,7 +40,15 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageEntity> searchMessageById(Integer id) {
+    public MessageEntity searchMessageById(Integer id) {
+        MessageEntity fetch = jpaQueryFactory.selectFrom(QMessageEntity.messageEntity)
+                .where(QMessageEntity.messageEntity.id.eq(id))
+                .fetch().get(0);
+        return fetch;
+    }
+
+    @Override
+    public List<MessageEntity> searchMessageByUserId(Integer id) {
         List<MessageEntity> fetch = jpaQueryFactory.selectFrom(QMessageEntity.messageEntity)
                 .where(QMessageEntity.messageEntity.senderId.eq(id))
                 .fetch();
@@ -49,9 +57,12 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public long updateUnreadMessage(Integer id) {
-        MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setId(id);
-        messageEntity.setRead(1);
+        MessageEntity fetch = jpaQueryFactory.selectFrom(QMessageEntity.messageEntity)
+                .where(QMessageEntity.messageEntity.id.eq(id))
+                .fetch().get(0);
+        fetch.setReadMark(1);
+         messageRepository.save(fetch);
+//        jpaQueryFactory.update(QMessageEntity.messageEntity).set(QMessageEntity.messageEntity.readMark,1).where(QMessageEntity.messageEntity.id.eq(id)).execute();
         return 0;
     }
 

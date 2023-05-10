@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/message")
@@ -53,7 +54,7 @@ public class MessageController {
        return R.ok();
     }
 
-    @GetMapping("update")
+    @PostMapping("update")
     public R updateRead(@RequestBody MessageEntity messageEntity){
         messageService.updateUnreadMessage(messageEntity.getId());
         return R.ok();
@@ -63,8 +64,14 @@ public class MessageController {
     public R query(HttpServletRequest request){
         String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
         Long userId = jwtUtil.getUserId(requestToken);
-        messageService.searchMessageById(userId.intValue());
-        return R.ok();
+        List<MessageEntity> messageEntities = messageService.searchMessageByUserId(userId.intValue());
+        return R.ok().put("data",messageEntities);
+    }
+
+    @PostMapping("queryById")
+    public R queryId(@RequestBody MessageEntity messageEntity){
+         MessageEntity messageEntities = messageService.searchMessageById(messageEntity.getId());
+        return R.ok().put("data",messageEntities);
     }
 
 

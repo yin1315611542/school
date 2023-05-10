@@ -177,7 +177,7 @@ public class PublishController {
     }
 
     @GetMapping("/myPublish")
-    public BaseGduiDTO<?> myPublish(ServletRequest request){
+    public R myPublish(ServletRequest request){
         try {
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
@@ -186,9 +186,9 @@ public class PublishController {
             user.setId(userId);
             List<Publish> publishes = publishService.queryPublishByPublisher(user);
             List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-            return BaseGduiDTO.ok(collect);
+            return R.ok().put("data",collect);
         }catch (Exception e){
-            return BaseGduiDTO.error();
+            return R.error();
         }
     }
 
