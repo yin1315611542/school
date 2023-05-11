@@ -178,8 +178,9 @@ public class PublishController {
                          }
                         singMap.put("label",name );
                         singMap.put("value", field.get(publishVo)); // 将属性名和属性值放到Map中
+                        list.add(singMap);
                     }
-                    list.add(singMap);
+
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
