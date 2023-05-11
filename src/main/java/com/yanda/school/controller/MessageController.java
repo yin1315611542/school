@@ -2,8 +2,10 @@ package com.yanda.school.controller;
 
 import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.message.MessageEntity;
-import com.yanda.school.message.service.MessageService;
 import com.yanda.school.message.MessageTask;
+import com.yanda.school.message.service.MessageService;
+import com.yanda.school.user.User;
+import com.yanda.school.user.service.UserService;
 import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
 import io.swagger.annotations.Api;
@@ -15,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 消息模块控制层
@@ -29,7 +33,9 @@ public class MessageController {
    @Autowired
    MessageTask messageTask;
    @Autowired
-    MessageService messageService;
+   MessageService messageService;
+   @Autowired
+    UserService userService;
 
 
    @GetMapping("/messageTest")
@@ -38,6 +44,22 @@ public class MessageController {
        messageEntity.setMsg("safcasfsa");
        messageTask.send(id.toString(),messageEntity);
    }
+
+    @PostMapping("/messagePublish")
+    public R create(@RequestBody MessageEntity messageEntity){
+        List<User> users = userService.searchAllUser();
+        List<Long> user = users.stream().map(User::getId).collect(Collectors.toList());
+        for (Long userid : user) {
+            MessageEntity messageEntity1 = new MessageEntity();
+            messageEntity1.setSenderId(userid.intValue());
+            messageEntity1.setReadMark(0);
+            messageEntity1.setSenderName("校园小助手");
+            messageEntity1.setMsg(messageEntity.getMsg());
+            messageEntity1.setSendTime(new Date());
+            messageService.insertMessage(messageEntity1);
+        }
+        return R.ok();
+    }
 
    @GetMapping("/messageReceive")
     public void receiveAsync(Integer id){
@@ -76,8 +98,4 @@ public class MessageController {
          MessageEntity messageEntities = messageService.searchMessageById(messageEntity.getId());
         return R.ok().put("data",messageEntities);
     }
-
-
-
-
 }

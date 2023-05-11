@@ -37,4 +37,6 @@ public class PublishVo {
     private Boolean mark;
 
     private String photo;
+
+    private String price;
 }

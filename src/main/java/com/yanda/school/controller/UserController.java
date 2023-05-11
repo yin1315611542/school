@@ -4,7 +4,6 @@ import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.message.MessageEntity;
 import com.yanda.school.message.MessageTask;
 import com.yanda.school.user.LoginForm;
-import com.yanda.school.user.pojo.DeleteUserByIdForm;
 import com.yanda.school.user.pojo.RegisterForm;
 import com.yanda.school.user.pojo.SearchUserInfoForm;
 import com.yanda.school.user.pojo.UpdateUserInfoForm;
@@ -173,17 +172,17 @@ public class UserController {
         return R.ok().put("result", rows);
     }
 
-    @PostMapping("/deleteUserById")
-    @ApiOperation("删除员工记录")
-    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:DELETE"}, logical = Logical.OR)
-    public R deleteUserById(@Valid @RequestBody DeleteUserByIdForm form) {
-        userService.deleteUserById(form.getId());
-//        HashMap param=new HashMap();
-//        param.put("status",2);
-//        param.put("userId",form.getId());
-//        userService.updateUserStatus(param);
-        return R.ok().put("result", "success");
-    }
+//    @PostMapping("/deleteUserById")
+//    @ApiOperation("删除员工记录")
+//    @RequiresPermissions(value = {"ROOT", "EMPLOYEE:DELETE"}, logical = Logical.OR)
+//    public R deleteUserById(@Valid @RequestBody DeleteUserByIdForm form) {
+//        userService.deleteUserById(form.getId());
+////        HashMap param=new HashMap();
+////        param.put("status",2);
+////        param.put("userId",form.getId());
+////        userService.updateUserStatus(param);
+//        return R.ok().put("result", "success");
+//    }
     //redis中用户信息存储
     private void saveCacheToken(String token, int userId) {
         redisTemplate.opsForValue().set(token, userId + "", cacheExpire, TimeUnit.DAYS);

@@ -37,7 +37,8 @@ public class JwtUtil {
     public String createToken(int userId) {
         //设置token生存周期
         Date date = DateUtil.offset(new Date(), DateField.DAY_OF_YEAR, expire).toJdkDate();
-        Algorithm algorithm = Algorithm.HMAC256(secret); //创建加密算法对象
+        //创建加密算法对象
+        Algorithm algorithm = Algorithm.HMAC256(secret);
         JWTCreator.Builder builder = JWT.create();
         String token = builder.withClaim("userId", userId).withExpiresAt(date).sign(algorithm);
         return token;

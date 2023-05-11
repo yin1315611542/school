@@ -3,7 +3,6 @@ package com.yanda.school.publish.mapper;
 import com.yanda.school.publish.Publish;
 import com.yanda.school.publish.PublishVo;
 import com.yanda.school.user.service.UserService;
-import com.yanda.school.user.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +24,7 @@ public class PublishMapper {
         publishVo.setTitle(publish.getTitle());
         publishVo.setStartingTime(publish.getStartingTime());
         publishVo.setPhoto(getPhoto(publish.getPublisher()));
+        publishVo.setPrice(publish.getPrice());
         return publishVo;
     }
     //获取头像

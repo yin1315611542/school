@@ -1,7 +1,7 @@
 package com.yanda.school.user.service;
 
+import com.yanda.school.user.User;
 import com.yanda.school.user.pojo.TbUser;
-import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,4 +36,6 @@ public interface UserService {
     public int updateUserInfo(HashMap param);
 
     public void deleteUserById(int id);
+
+    public List<User> searchAllUser();
 }

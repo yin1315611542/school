@@ -3,6 +3,10 @@ package com.yanda.school.user.service.impl;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yanda.school.message.MessageEntity;
+import com.yanda.school.user.QUser;
+import com.yanda.school.user.User;
 import com.yanda.school.user.mapper.TbUserDao;
 import com.yanda.school.user.pojo.TbUser;
 import com.yanda.school.user.service.UserService;
@@ -28,6 +32,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TbUserDao userDao;
+    @Autowired
+    JPAQueryFactory jpaQueryFactory;
 
 
     @Autowired
@@ -169,10 +175,12 @@ public class UserServiceImpl implements UserService {
         //更新用户记录
         int rows = userDao.updateUserInfo(param);
         //更新成功就发送消息通知 暂时不用
-//        if (rows == 1) {
-//            Integer userId = (Integer) param.get("userId");
-//            String msg = "你的个人资料已经被成功修改";
-//        }
+        if (rows == 1) {
+            Integer userId = (Integer) param.get("userId");
+            String msg = "你的个人资料已经被成功修改";
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setMsg(msg);
+        }
         return rows;
     }
 
@@ -182,6 +190,9 @@ public class UserServiceImpl implements UserService {
         if (row != 1) {
             throw new EmosException("删除员工失败");
         }
+    }
+    public List<User> searchAllUser(){
+        return jpaQueryFactory.selectFrom(QUser.user).where(QUser.user.status.eq(1)).fetch();
     }
 
 }

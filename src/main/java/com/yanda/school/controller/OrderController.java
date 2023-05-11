@@ -38,56 +38,57 @@ public class OrderController {
     PublishMapper publishMapper;
 
     @PostMapping("receive")
-    public R receiveOrder(@RequestBody OrderForm orderForm,HttpServletRequest request){
+    public R receiveOrder(@RequestBody OrderForm orderForm, ServletRequest request) {
         try {
-
-
+            //从请求中拿出token
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
+            //破解token，解析出当前登录用户id
             Long userId = jwtUtil.getUserId(requestToken);
-            if (orderForm.getPublisher().equals(userId)){
+            if (orderForm.getPublisher().equals(userId)) {
                 return R.error("不可接收自己发布的单子");
-
             }
             Publish publish = publishService.queryPublishById(orderForm.getId());
             publish.setReceiver(userId);
             publishService.createPublish(publish);
             return R.ok();
-        }catch (Exception e){
+        } catch (Exception e) {
             return R.error();
         }
     }
 
     @GetMapping("/myReceiver")
-    public R myReceiver(ServletRequest request){
+    public R myReceiver(ServletRequest request) {
         try {
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
             User user = new User();
             user.setId(userId);
             List<Publish> publishes = publishService.queryPublishByReceiver(user);
-            List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
-            return R.ok().put("data",collect);
-        }catch (Exception e){
+            List<PublishVo> collect = publishes.stream()
+                    .map(e -> publishMapper.entityToVo(e))
+                    .collect(Collectors.toList());
+            return R.ok().put("data", collect);
+        } catch (Exception e) {
             return R.error();
         }
     }
 
     @PostMapping("delReceiver")
-    public R cancelOrder(@RequestBody Publish publish){
+    public R cancelOrder(@RequestBody Publish publish) {
         try {
             publishService.cancelOrder(publish.getId());
             return R.ok();
-        }catch (Exception e){
+        } catch (Exception e) {
             return R.error();
         }
     }
 
     @PostMapping("completeOrder")
-    public R completeOrder(@RequestBody Publish publish){
+    public R completeOrder(@RequestBody Publish publish) {
         try {
             publishService.ModifyPublish(publish);
             return R.ok();
-        }catch (Exception e){
+        } catch (Exception e) {
             return R.error();
         }
     }

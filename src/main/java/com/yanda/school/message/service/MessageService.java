@@ -2,19 +2,11 @@ package com.yanda.school.message.service;
 
 import com.yanda.school.message.MessageEntity;
 
-import java.util.HashMap;
 import java.util.List;
 
 public interface MessageService {
 
     public String insertMessage(MessageEntity entity);
-
-
-    public long searchUnreadCount(int userId);
-
-    public long searchLastCount(int userId);
-
-    public List<HashMap> searchMessageByPage(int userId, long start, int length) ;
 
     public MessageEntity searchMessageById(Integer id);
 
@@ -24,5 +16,4 @@ public interface MessageService {
 
     public long deleteMessageRefById(Integer id);
 
-	public long deleteUserMessageRef(int userId);
 }

@@ -22,19 +22,18 @@ public class MessageEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-
     private String uuid;
 
-
+    //发送者id
     private Integer senderId;
-
+    //发送者头像
 	private String senderPhoto="https://static-1258386385.cos.ap-beijing.myqcloud.com/img/System.jpg";
-
-	private String senderName;
-
-    private Date sendTime;
-
+    //发送者名字
+	private String senderName = "校园小助手";
+    //发送时间
+    private Date sendTime = new Date();
+    //发送消息
     private String msg;
-
-    private Integer readMark;
+    //是否已读
+    private Integer readMark = 0;
 }
