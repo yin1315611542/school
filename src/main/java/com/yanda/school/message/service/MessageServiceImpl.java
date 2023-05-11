@@ -1,7 +1,9 @@
-package com.yanda.school.message;
+package com.yanda.school.message.service;
 
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yanda.school.message.QMessageEntity;
+import com.yanda.school.message.MessageEntity;
 import com.yanda.school.message.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

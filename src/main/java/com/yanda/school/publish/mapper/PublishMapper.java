@@ -17,6 +17,7 @@ public class PublishMapper {
         publishVo.setDestination(publish.getDestination());
         publishVo.setImg(publish.getImg());
         publishVo.setId(publish.getId());
+        publishVo.setPublisher(publish.getPublisher());
         publishVo.setStartingPlace(publish.getStartingPlace());
         publishVo.setEndOfTime(publish.getEndOfTime());
         publishVo.setMobilePhoneNo(publish.getMobilePhoneNo());

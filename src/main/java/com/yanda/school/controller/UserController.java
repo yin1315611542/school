@@ -35,6 +35,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * 用户模块控制层
+ */
 @RestController
 @RequestMapping("school/user")
 @Api("用户模块Web接口")

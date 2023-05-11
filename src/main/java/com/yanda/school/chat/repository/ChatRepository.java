@@ -1,5 +1,6 @@
-package com.yanda.school.chat;
+package com.yanda.school.chat.repository;
 
+import com.yanda.school.chat.Chat;
 import com.yanda.school.publish.Publish;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Example;

@@ -1,4 +1,4 @@
-package com.yanda.school.message;
+package com.yanda.school.message.entity;
 
 import lombok.Data;
 

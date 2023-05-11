@@ -1,4 +1,6 @@
-package com.yanda.school.message;
+package com.yanda.school.message.service;
+
+import com.yanda.school.message.MessageEntity;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,6 +1,9 @@
-package com.yanda.school.chat;
+package com.yanda.school.chat.service;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yanda.school.chat.Chat;
+import com.yanda.school.chat.repository.ChatRepository;
+import com.yanda.school.chat.QChat;
 import com.yanda.school.user.pojo.TbUser;
 import com.yanda.school.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

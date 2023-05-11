@@ -1,6 +1,6 @@
 package com.yanda.school;
 
-import com.yanda.school.chat.ChatService;
+import com.yanda.school.chat.service.ChatService;
 import com.yanda.school.moudel.ModuleType;
 import com.yanda.school.publish.Publish;
 import com.yanda.school.publish.service.PublishService;

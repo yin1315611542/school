@@ -22,6 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 接单模块控制层
+ */
+
 @RestController
 @Slf4j
 @RequestMapping("order")
@@ -36,8 +40,14 @@ public class OrderController {
     @PostMapping("receive")
     public R receiveOrder(@RequestBody OrderForm orderForm,HttpServletRequest request){
         try {
+
+
             String requestToken = TokenUtil.getRequestToken((HttpServletRequest) request);
             Long userId = jwtUtil.getUserId(requestToken);
+            if (orderForm.getPublisher().equals(userId)){
+                return R.error("不可接收自己发布的单子");
+
+            }
             Publish publish = publishService.queryPublishById(orderForm.getId());
             publish.setReceiver(userId);
             publishService.createPublish(publish);

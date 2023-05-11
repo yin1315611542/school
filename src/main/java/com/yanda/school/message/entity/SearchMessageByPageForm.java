@@ -1,4 +1,4 @@
-package com.yanda.school.message;
+package com.yanda.school.message.entity;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;

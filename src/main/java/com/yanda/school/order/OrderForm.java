@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderForm {
     Long id;
+    Long publisher;
 }

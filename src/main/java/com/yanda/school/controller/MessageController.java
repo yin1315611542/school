@@ -2,7 +2,7 @@ package com.yanda.school.controller;
 
 import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.message.MessageEntity;
-import com.yanda.school.message.MessageService;
+import com.yanda.school.message.service.MessageService;
 import com.yanda.school.message.MessageTask;
 import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * 消息模块控制层
+ */
 @RestController
 @RequestMapping("/message")
 @Api("消息模块网络接口")

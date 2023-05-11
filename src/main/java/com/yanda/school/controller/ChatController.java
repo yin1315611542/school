@@ -2,7 +2,7 @@ package com.yanda.school.controller;
 
 import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.chat.Chat;
-import com.yanda.school.chat.ChatService;
+import com.yanda.school.chat.service.ChatService;
 import com.yanda.school.user.pojo.TbUser;
 import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
@@ -18,7 +18,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
-
+//聊天模块控制层
 @RestController
 @Slf4j
 @RequestMapping("chat")
