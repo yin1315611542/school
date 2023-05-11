@@ -73,14 +73,17 @@ public class PublishServiceImpl implements PublishService {
     }
 
     @Override
-    public Boolean acceptOrders() {
-        return null;
+    public Boolean completeOrders(Long orderId) {
+        Publish publish = publishRepository.getById(orderId);
+        publish.setMark(true);
+        publishRepository.save(publish);
+        return true;
     }
 
     @Override
     public Boolean cancelOrder(Long orderId) {
         Publish publish = publishRepository.getById(orderId);
-        publish.setReceiver(0L);
+        publish.setReceiver(null);
         publish.setId(orderId);
         publishRepository.save(publish);
         return true;

@@ -94,9 +94,8 @@ public class PublishController {
     }
 
     @GetMapping("publish")
-    public R PublishAll(){
+    public R PublishAll(HttpServletRequest s){
         List<Publish> publishes = publishService.queryPublishAll();
-
         List<PublishVo> collect = publishes.stream().map(e -> publishMapper.entityToVo(e)).collect(Collectors.toList());
         return R.ok().put("data",collect);
     }
@@ -132,7 +131,6 @@ public class PublishController {
             PublishVo publishVo = new PublishVo();
             if (requestToken != null){
                 Long userId = jwtUtil.getUserId(requestToken);
-
                 Publish publish = publishService.queryPublishById(publishs.getId());
                 publishVo = publishMapper.entityToVo(publish);
                 if (publish.getPublisher().equals(userId)){
@@ -191,11 +189,67 @@ public class PublishController {
         }
     }
 
-//    @PostMapping("getOrderToMap")
-//    public R getPublishToMap(@RequestBody Publish publish){
-//        Publish publish1 = publishService.queryPublishById(publish.getId());
-//        publish1
-//    }
+    @GetMapping("getOrderToMap")
+    public R getPublishToMap(){
+        try {
+
+            PublishVo publishVo = new PublishVo();
+
+                Integer userId = 9;
+
+                Publish publish = publishService.queryPublishById(442L);
+                publishVo = publishMapper.entityToVo(publish);
+                if (publish.getPublisher().equals(userId)){
+                    publishVo.setMark(true);
+                }else {
+                    publish.setMark(false);
+                }
+
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("imags", JSONObject.parseObject(publishVo.getImg(),List.class));
+            ArrayList<Map<String,Object>> list = new ArrayList<>();
+            Field[] fields = publishVo.getClass().getDeclaredFields();
+            List<String> showList = Arrays.stream("title,content,startingTime,endOfTime,destination".split(","))
+                    .collect(Collectors.toList());
+            for (Field field : fields) {
+                field.setAccessible(true); // 设置属性可访问
+                try {
+                    HashMap<String, Object> singMap = new HashMap<>();
+                    if (showList.contains(field.getName())){
+                        String name = null;
+                        switch (field.getName()){
+                            case "title":
+                                name = "标题";
+                                break;
+                            case "content":
+                                name = "备注";
+                                break;
+                            case "startingTime":
+                                name = "开始时间";
+                                break;
+                            case "endOfTime":
+                                name  = "结单时间";
+                                break;
+                            case "destination":
+                                name  = "目的地";
+                                break;
+                        }
+                        singMap.put("label",name );
+                        singMap.put("value", field.get(publishVo)); // 将属性名和属性值放到Map中
+                        list.add(singMap);
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            map.put("list",list);
+            return R.ok().put("data",map);
+        }catch (Exception e){
+            return R.error();
+        }
+    }
 
     @PostMapping("/uploadImage")
     @ResponseBody

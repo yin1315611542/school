@@ -1,16 +1,14 @@
 package com.yanda.school.controller;
 
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
 import com.yanda.school.auth.JwtUtil;
+import com.yanda.school.message.MessageEntity;
+import com.yanda.school.message.MessageTask;
 import com.yanda.school.user.LoginForm;
 import com.yanda.school.user.pojo.DeleteUserByIdForm;
 import com.yanda.school.user.pojo.RegisterForm;
 import com.yanda.school.user.pojo.SearchUserInfoForm;
 import com.yanda.school.user.pojo.UpdateUserInfoForm;
 import com.yanda.school.user.service.UserService;
-import com.yanda.school.utils.EmosException;
 import com.yanda.school.utils.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,11 +17,23 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("school/user")
@@ -37,6 +47,8 @@ public class UserController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    MessageTask messageTask;
 
     @Value("${emos.jwt.cache-expire}")
     private int cacheExpire;
@@ -50,6 +62,13 @@ public class UserController {
         //根据用户返回用户的权限列表
         Set<String> permsSet = userService.searchUserPermissions(id);
         saveCacheToken(token, id);
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setMsg("账户激活成功");
+        messageEntity.setSenderId(id);
+        messageEntity.setSendTime(new Date());
+        messageEntity.setReadMark(0);
+        messageEntity.setSenderName("校园小助手");
+        messageTask.send(id+"",messageEntity);
         return R.ok("用户注册成功").put("token", token).put("permission", permsSet);
     }
 
@@ -93,6 +112,41 @@ public class UserController {
         int userId = jwtUtil.getUserId(token).intValue();
         HashMap map = userService.searchUserInfo(userId);
         return R.ok().put("result", map);
+    }
+
+    @GetMapping("/searchUserSelfInfoForOrder")
+    @ApiOperation("查询用户信息")
+    public R searchUserSelfInfoForOrder(@RequestHeader("token") String token) {
+        int userId = jwtUtil.getUserId(token).intValue();
+        HashMap<String,Object> map = userService.searchUserInfo(userId);
+        List<Map> lists = new ArrayList<>();
+        List<String> collect = Arrays.stream("name,sex,tel,email".split(",")).collect(Collectors.toList());
+        for (String key : map.keySet()) {
+             if (collect.contains(key)){
+                 String label;
+                 switch (key){
+                     case "name":
+                         label = "姓名";
+                         break;
+                     case "sex":
+                         label = "性别";
+                         break;
+                     case "tel":
+                         label = "联系方式";
+                         break;
+                     case "email":
+                         label = "邮箱";
+                         break;
+                     default:
+                         throw new IllegalStateException("Unexpected value: " + key);
+                 }
+                 HashMap<String, String> singMap = new HashMap<>();
+                 singMap.put("label",label );
+                 singMap.put("value", (String) map.get(key)); // 将属性名和属性值放到Map中
+                 lists.add(singMap);
+             }
+        }
+        return R.ok().put("data", lists);
     }
 
 

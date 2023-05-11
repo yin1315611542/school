@@ -1,18 +1,21 @@
 package com.yanda.school.controller;
 
-import com.yanda.school.config.BaseGduiDTO;
+import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.order.OrderForm;
 import com.yanda.school.publish.Publish;
 import com.yanda.school.publish.PublishVo;
 import com.yanda.school.publish.mapper.PublishMapper;
 import com.yanda.school.publish.service.PublishService;
 import com.yanda.school.user.User;
-import com.yanda.school.auth.JwtUtil;
 import com.yanda.school.utils.R;
 import com.yanda.school.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -59,13 +62,25 @@ public class OrderController {
         }
     }
 
-    @DeleteMapping("delReceiver")
-    public BaseGduiDTO<?> cancelOrder(Long orderId){
+    @PostMapping("delReceiver")
+    public R cancelOrder(@RequestBody Publish publish){
         try {
-            publishService.cancelOrder(orderId);
-            return BaseGduiDTO.ok();
+            publishService.cancelOrder(publish.getId());
+            return R.ok();
         }catch (Exception e){
-            return BaseGduiDTO.error();
+            return R.error();
         }
     }
+
+    @PostMapping("completeOrder")
+    public R completeOrder(@RequestBody Publish publish){
+        try {
+            publishService.ModifyPublish(publish);
+            return R.ok();
+        }catch (Exception e){
+            return R.error();
+        }
+    }
+
+
 }

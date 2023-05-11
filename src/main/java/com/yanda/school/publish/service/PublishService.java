@@ -3,7 +3,6 @@ package com.yanda.school.publish.service;
 import com.yanda.school.moudel.ModuleType;
 import com.yanda.school.publish.Publish;
 import com.yanda.school.user.User;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public interface PublishService {
     //按照接单者查询发布信息
     public List<Publish> queryPublishByReceiver(User user);
     //接单
-    public Boolean acceptOrders();
+    public Boolean completeOrders(Long orderId);
     //取消接单
     public Boolean cancelOrder(Long orderId);
     //关键字查找
